@@ -1,0 +1,178 @@
+const path = require("path");
+const dotenv = require("dotenv");
+dotenv.config({ path: path.resolve(__dirname, "../config.env") });
+const catchAsync = require("../utils/catchAsync");
+const AppError = require("../utils/appError");
+const Project = require("../models/residentialprojectModel");
+const {
+  S3Client,
+  PutObjectCommand,
+  DeleteObjectCommand,
+} = require("@aws-sdk/client-s3");
+const Factory = require("../utils/handlerFactory");
+
+const s3_ImageUploder = new S3Client({
+  region: "auto",
+  endpoint: `https://${process.env.SR_BUCKET_S3_API}.r2.cloudflarestorage.com`,
+  credentials: {
+    accessKeyId: process.env.SR_R2_ACCESS_KEY,
+    secretAccessKey: process.env.SR_R2_SECRET_KEY,
+  },
+  forcePathStyle: true,
+});
+
+exports.updateProjectImage = catchAsync(async (req, res, next) => {
+  try {
+    console.log("File received:", req.file.originalname.split(".")[0]);
+
+    // 2. Upload to R2
+    const fileExtension = req.file.originalname.split(".").pop();
+    const fileName = `saranshrealtors-project-image/${Date.now()}.${fileExtension}`;
+    const imageName = req.file.originalname.split(".")[0];
+
+    await s3_ImageUploder.send(
+      new PutObjectCommand({
+        Bucket: process.env.SR_BUCKET_S3_PROJECT_IMAGE,
+        Key: fileName,
+        Body: req.file.buffer,
+        ContentType: req.file.mimetype,
+      })
+    );
+
+    // 3. Update Database
+    const updatedProject = await Project.findByIdAndUpdate(
+      req.params._id,
+      {
+        projectImage: {
+          url: `${process.env.SR_PROJECT_IMAGE_BUCKET_PUBLIC_URL}/${fileName}`,
+          altText: imageName,
+          title: `saranshrealtors-${imageName}`,
+          caption: `${imageName}`,
+          description: `This image is related to ${imageName} Real Estate Project`,
+        },
+      },
+      { new: true, runValidators: true }
+    );
+
+    res.status(200).json({
+      status: "success",
+      data: updatedProject,
+      message: "project image upload succesfully",
+    });
+  } catch (error) {
+    console.error("Error:", error);
+    return next(
+      new AppError(
+        "Failed to process and upload the image. Please try again.",
+        500
+      )
+    );
+  }
+});
+
+exports.updateProjectGallery = catchAsync(async (req, res, next) => {
+  try {
+    if (!req.files || req.files.length === 0) {
+      return next(new AppError("No images provided for gallery update", 400));
+    }
+
+    // Upload all files to Cloudflare R2
+    const galleryImages = await Promise.all(
+      req.files.map(async (file) => {
+        const fileExtension = file.originalname.split(".").pop();
+        const imageName = file.originalname.split(".")[0];
+        const fileName = `saranshrealtors-project-gallery/${Date.now()}-${Math.round(
+          Math.random() * 1e9
+        )}.${fileExtension}`;
+
+        await s3_ImageUploder.send(
+          new PutObjectCommand({
+            Bucket: process.env.SR_BUCKET_S3_PROJECT_IMAGE,
+            Key: fileName,
+            Body: file.buffer,
+            ContentType: file.mimetype,
+          })
+        );
+
+        return {
+          url: `${process.env.SR_PROJECT_IMAGE_BUCKET_PUBLIC_URL}/${fileName}`,
+          altText: imageName,
+          title: `saranshrealtors-${imageName}`,
+          caption: `${imageName}`,
+          description: `This image is related to ${imageName} Real Estate Project`,
+        };
+      })
+    );
+
+    // Push new gallery images into the project
+    const updatedProject = await Project.findByIdAndUpdate(
+      req.params._id,
+      {
+        $push: { galleryImages: { $each: galleryImages } },
+      },
+      { new: true, runValidators: true }
+    );
+
+    res.status(200).json({
+      status: "success",
+      data: updatedProject,
+      message: "Gallery image deleted successfully",
+    });
+  } catch (error) {
+    console.error("Error updating gallery:", error);
+    return next(
+      new AppError(
+        "Failed to process and upload gallery images. Please try again.",
+        500
+      )
+    );
+  }
+});
+
+// 🔥 Delete gallery image
+exports.deleteGalleryImage = catchAsync(async (req, res, next) => {
+  const { _id } = req.params; // project id
+  const { imageUrl } = req.body; // image URL to delete
+
+  if (!imageUrl) {
+    return next(new AppError("Image URL is required", 400));
+  }
+
+  // 1) Extract file key from image URL
+  const fileKey = imageUrl.split(
+    `${process.env.SR_PROJECT_IMAGE_BUCKET_PUBLIC_URL}/`
+  )[1];
+  if (!fileKey) {
+    return next(new AppError("Invalid image URL", 400));
+  }
+
+  // 2) Delete from R2
+  try {
+    await s3_ImageUploder.send(
+      new DeleteObjectCommand({
+        Bucket: process.env.SR_BUCKET_S3_PROJECT_IMAGE,
+        Key: fileKey,
+      })
+    );
+  } catch (err) {
+    console.error("❌ Failed to delete from R2:", err);
+    return next(new AppError("Failed to delete image from storage", 500));
+  }
+
+  // 3) Remove from MongoDB galleryImages array
+  const updatedProject = await Project.findByIdAndUpdate(
+    _id,
+    { $pull: { galleryImages: { url: imageUrl } } },
+    { new: true }
+  );
+
+  if (!updatedProject) {
+    return next(new AppError("Project not found", 404));
+  }
+
+  res.status(200).json({
+    status: "success",
+    message: "Gallery image Deleted successfully",
+    data: updatedProject,
+  });
+});
