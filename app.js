@@ -7,6 +7,7 @@ const amenitiesRoute = require("./routes/amenitiesRoute");
 const builderRoute = require("./routes/builderRoute");
 const cityRoute = require("./routes/cityRoute");
 const locationRoute = require("./routes/locationRoute");
+const blogRoute = require("./routes/blogRoute");
 const cors = require("cors");
 
 app.use(cors());
@@ -19,5 +20,6 @@ app.use("/api/v1/real-estate/admin/amenity", amenitiesRoute);
 app.use("/api/v1/real-estate/admin/builder", builderRoute);
 app.use("/api/v1/real-estate/admin/city", cityRoute);
 app.use("/api/v1/real-estate/admin/location", locationRoute);
+app.use("/api/v1/real-estate/admin/blog", blogRoute);
 
 module.exports = app;

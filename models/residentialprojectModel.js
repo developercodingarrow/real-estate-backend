@@ -43,6 +43,8 @@ const residentialProjectSchema = new mongoose.Schema(
         "mall",
         "commerercial-project",
         "residential-project",
+        "co-working-office-space",
+        "ready-to-move-office-space",
       ],
       default: "apartment",
     },
@@ -207,6 +209,13 @@ const residentialProjectSchema = new mongoose.Schema(
     propertyOnFloor: {
       type: String,
       lowercase: true,
+    },
+
+    officeMiniSeats: {
+      type: Number,
+    },
+    officeCabines: {
+      type: Number,
     },
   },
   { timestamps: true }

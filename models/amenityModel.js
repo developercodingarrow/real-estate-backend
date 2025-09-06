@@ -8,6 +8,22 @@ const amenitySchema = new mongoose.Schema({
     unique: true, // prevent duplicate names
     trim: true,
   },
+  propertyType: {
+    type: String,
+    enum: [
+      "apartment",
+      "house",
+      "plot",
+      "shop",
+      "mall",
+      "commerercial-project",
+      "residential-project",
+      "co-working-office-space",
+      "ready-to-move-office-space",
+    ],
+    required: true,
+    trim: true,
+  },
   slug: {
     type: String,
     unique: true,

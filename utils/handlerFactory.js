@@ -18,9 +18,9 @@ exports.getAll = (Model) => {
   return catchAsync(async (req, res, next) => {
     const doc = await Model.find();
     res.status(200).json({
+      total: doc.length,
       status: "success",
       data: doc,
-      total: doc.length,
     });
   });
 };

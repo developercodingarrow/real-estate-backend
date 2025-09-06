@@ -17,3 +17,30 @@ exports.createAmenity = catchAsync(async (req, res, next) => {
 
 // 2) Get All Project Controller
 exports.allAmnities = Factory.getAll(Amenity);
+
+// 3) DELETE AMNITIE Controller
+exports.deleteAmenities = catchAsync(async (req, res, next) => {
+  const { _id } = req.body;
+
+  if (!_id) {
+    return res.status(400).json({
+      status: "fail",
+      message: "Amnitie ID is required",
+    });
+  }
+
+  const amnite = await Amenity.findByIdAndDelete(_id);
+
+  if (!amnite) {
+    return res.status(404).json({
+      status: "fail",
+      message: "No Amnite found with this ID",
+    });
+  }
+
+  res.status(200).json({
+    status: "success",
+    message: "city deleted successfully",
+    data: amnite,
+  });
+});

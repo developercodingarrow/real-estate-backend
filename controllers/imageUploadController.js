@@ -4,6 +4,7 @@ dotenv.config({ path: path.resolve(__dirname, "../config.env") });
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
 const Project = require("../models/residentialprojectModel");
+const Blog = require("../models/blogModel");
 const {
   S3Client,
   PutObjectCommand,
@@ -175,4 +176,96 @@ exports.deleteGalleryImage = catchAsync(async (req, res, next) => {
     message: "Gallery image Deleted successfully",
     data: updatedProject,
   });
+});
+
+exports.updateBlogImage = catchAsync(async (req, res, next) => {
+  try {
+    console.log("File received:", req.file.originalname.split(".")[0]);
+
+    // 2. Upload to R2
+    const fileExtension = req.file.originalname.split(".").pop();
+    const fileName = `saranshrealtors-blog-image/${Date.now()}.${fileExtension}`;
+    const imageName = req.file.originalname.split(".")[0];
+
+    await s3_ImageUploder.send(
+      new PutObjectCommand({
+        Bucket: process.env.SR_BUCKET_S3_BLOG_IMAGE,
+        Key: fileName,
+        Body: req.file.buffer,
+        ContentType: req.file.mimetype,
+      })
+    );
+
+    // 3. Update Database
+    const updatedBlog = await Blog.findByIdAndUpdate(
+      req.params._id,
+      {
+        blogImage: {
+          url: `${process.env.SR_BLOG_IMAGE_BUCKET_PUBLIC_URL}/${fileName}`,
+          altText: imageName,
+          title: `saranshrealtors-${imageName}`,
+          caption: `${imageName}`,
+          description: `This image is related to ${imageName} Real Estate Project`,
+        },
+      },
+      { new: true, runValidators: true }
+    );
+
+    res.status(200).json({
+      status: "success",
+      data: updatedBlog,
+      message: "Blog image upload succesfully",
+    });
+  } catch (error) {
+    console.error("Error:", error);
+    return next(
+      new AppError(
+        "Failed to process and upload the image. Please try again.",
+        500
+      )
+    );
+  }
+});
+
+exports.deleteBlogImage = catchAsync(async (req, res, next) => {
+  try {
+    const blog = await Blog.findById(req.params._id);
+
+    if (!blog) {
+      return next(new AppError("Blog not found", 404));
+    }
+
+    if (!blog.blogImage || !blog.blogImage.url) {
+      return next(new AppError("No image found for this blog", 400));
+    }
+
+    // Extract file key from the URL
+    const imageUrl = blog.blogImage.url;
+    const fileKey = imageUrl.replace(
+      `${process.env.SR_BLOG_IMAGE_BUCKET_PUBLIC_URL}/`,
+      ""
+    );
+
+    // 1. Delete from S3 (R2)
+    await s3_ImageUploder.send(
+      new DeleteObjectCommand({
+        Bucket: process.env.SR_BUCKET_S3_BLOG_IMAGE,
+        Key: fileKey,
+      })
+    );
+
+    // 2. Remove from DB
+    blog.blogImage = undefined;
+    await blog.save();
+
+    res.status(200).json({
+      status: "success",
+      message: "Blog image deleted successfully",
+    });
+  } catch (error) {
+    console.error("Error deleting blog image:", error);
+    return next(
+      new AppError("Failed to delete blog image. Please try again later.", 500)
+    );
+  }
 });

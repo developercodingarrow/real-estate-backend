@@ -50,12 +50,6 @@ exports.updateProjectFileds = Factory.updateOneByFillterdFiled(Project, [
 // 4) Delete Project Image Controller
 exports.deleteProjectImage = Factory.deleteSingleImage(Project, "projectImage");
 
-// 5) Get All Project Controller
-exports.allProject = Factory.getAllByFiled(
-  Project,
-  "propertyCategory",
-  "residential"
-);
 // 5) Add Amenities to Project Controller
 exports.addAmenitiesProject = catchAsync(async (req, res, next) => {
   const { _id } = req.params; // slug from URL
@@ -123,3 +117,12 @@ exports.addKeywords = catchAsync(async (req, res, next) => {
     data: project,
   });
 });
+
+// 5) Get All Project Controller
+exports.allProject = Factory.getAllByFiled(
+  Project,
+  "propertyCategory",
+  "residential"
+);
+
+exports.allprojects = Factory.getAll(Project);

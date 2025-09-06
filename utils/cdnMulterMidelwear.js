@@ -23,6 +23,7 @@ const imageUpload = multer({
 
 // Middlewares for uploading images
 exports.projectImageMiddleware = imageUpload.single("projectImage");
+exports.blogImageMiddleware = imageUpload.single("blogImage");
 
 // ✅ Middleware for multiple gallery images
 exports.projectGalleryMiddleware = imageUpload.array("galleryImages", 5);

@@ -5,6 +5,7 @@ const {
   handleMulterErrors,
   projectImageMiddleware,
   projectGalleryMiddleware,
+  blogImageMiddleware,
 } = require("../utils/cdnMulterMidelwear");
 
 router.patch(
@@ -25,5 +26,14 @@ router.delete(
   "/delete-gallery-image/:_id",
   imageUploadController.deleteGalleryImage
 );
+
+router.patch(
+  "/update-blog-image/:_id",
+  blogImageMiddleware,
+  handleMulterErrors,
+  imageUploadController.updateBlogImage
+);
+
+router.delete("/delete-blog-image/:_id", imageUploadController.deleteBlogImage);
 
 module.exports = router;
