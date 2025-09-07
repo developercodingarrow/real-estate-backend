@@ -34,6 +34,13 @@ router.patch(
   imageUploadController.updateBlogImage
 );
 
+router.delete(
+  "/deletProjectwithAllImage/:_id",
+  imageUploadController.deleteProject
+);
+
 router.delete("/delete-blog-image/:_id", imageUploadController.deleteBlogImage);
+
+router.delete("/deletBlogWithImage/:_id", imageUploadController.deleteBlog);
 
 module.exports = router;

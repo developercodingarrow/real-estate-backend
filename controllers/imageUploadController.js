@@ -178,6 +178,68 @@ exports.deleteGalleryImage = catchAsync(async (req, res, next) => {
   });
 });
 
+// 🔥 Delete whole project + all images
+exports.deleteProject = catchAsync(async (req, res, next) => {
+  const { _id } = req.params;
+
+  // 1) Find project
+  const project = await Project.findById(_id);
+  if (!project) {
+    return next(new AppError("Project not found", 404));
+  }
+
+  try {
+    // 2) Delete main project image (if exists)
+    if (project.mainImage?.url) {
+      const mainKey = project.mainImage.url.split(
+        `${process.env.SR_PROJECT_IMAGE_BUCKET_PUBLIC_URL}/`
+      )[1];
+
+      if (mainKey) {
+        await s3_ImageUploder.send(
+          new DeleteObjectCommand({
+            Bucket: process.env.SR_BUCKET_S3_PROJECT_IMAGE,
+            Key: mainKey,
+          })
+        );
+      }
+    }
+
+    // 3) Delete all gallery images (if any)
+    if (project.galleryImages?.length > 0) {
+      const deleteCommands = project.galleryImages
+        .map((img) => {
+          const fileKey = img.url.split(
+            `${process.env.SR_PROJECT_IMAGE_BUCKET_PUBLIC_URL}/`
+          )[1];
+          if (!fileKey) return null;
+          return new DeleteObjectCommand({
+            Bucket: process.env.SR_BUCKET_S3_PROJECT_IMAGE,
+            Key: fileKey,
+          });
+        })
+        .filter(Boolean);
+
+      if (deleteCommands.length > 0) {
+        await Promise.all(
+          deleteCommands.map((cmd) => s3_ImageUploder.send(cmd))
+        );
+      }
+    }
+
+    // 4) Delete project from DB
+    await Project.findByIdAndDelete(_id);
+
+    res.status(200).json({
+      status: "success",
+      message: "Project and all images deleted successfully",
+    });
+  } catch (err) {
+    console.error("❌ Failed to delete project:", err);
+    return next(new AppError("Failed to delete project or images", 500));
+  }
+});
+
 exports.updateBlogImage = catchAsync(async (req, res, next) => {
   try {
     console.log("File received:", req.file.originalname.split(".")[0]);
@@ -266,6 +328,51 @@ exports.deleteBlogImage = catchAsync(async (req, res, next) => {
     console.error("Error deleting blog image:", error);
     return next(
       new AppError("Failed to delete blog image. Please try again later.", 500)
+    );
+  }
+});
+
+// Delete Blog + Image
+exports.deleteBlog = catchAsync(async (req, res, next) => {
+  try {
+    const blog = await Blog.findById(req.params._id);
+
+    if (!blog) {
+      return next(new AppError("Blog not found", 404));
+    }
+
+    // ✅ If blog has an image, delete from S3 first
+    if (blog.blogImage && blog.blogImage.url) {
+      const imageUrl = blog.blogImage.url;
+      const fileKey = imageUrl.replace(
+        `${process.env.SR_BLOG_IMAGE_BUCKET_PUBLIC_URL}/`,
+        ""
+      );
+
+      try {
+        await s3_ImageUploder.send(
+          new DeleteObjectCommand({
+            Bucket: process.env.SR_BUCKET_S3_BLOG_IMAGE,
+            Key: fileKey,
+          })
+        );
+      } catch (err) {
+        console.error("Error deleting image from S3:", err.message);
+        // Not blocking blog deletion if image deletion fails
+      }
+    }
+
+    // ✅ Delete blog from DB
+    await Blog.findByIdAndDelete(req.params._id);
+
+    res.status(200).json({
+      status: "success",
+      message: "Blog and associated image deleted successfully",
+    });
+  } catch (error) {
+    console.error("Error deleting blog:", error);
+    return next(
+      new AppError("Failed to delete blog. Please try again later.", 500)
     );
   }
 });

@@ -45,6 +45,7 @@ exports.updateProjectFileds = Factory.updateOneByFillterdFiled(Project, [
   "plotPossession",
   "totalFloors",
   "propertyOnFloor",
+  "rent",
 ]);
 
 // 4) Delete Project Image Controller

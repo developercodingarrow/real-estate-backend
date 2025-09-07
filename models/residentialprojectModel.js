@@ -217,6 +217,9 @@ const residentialProjectSchema = new mongoose.Schema(
     officeCabines: {
       type: Number,
     },
+    rent: {
+      type: Number,
+    },
   },
   { timestamps: true }
 );

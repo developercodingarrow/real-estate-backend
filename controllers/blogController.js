@@ -161,3 +161,5 @@ exports.updateSlug = catchAsync(async (req, res, next) => {
     message: "Slug updated successfully",
   });
 });
+
+exports.allBlogs = Factory.getAll(Blog);
