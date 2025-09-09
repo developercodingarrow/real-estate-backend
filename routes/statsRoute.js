@@ -1,7 +1,9 @@
 const express = require("express");
+const router = express.Router();
 const statsController = require("../controllers/statsController");
 
-const router = express.Router();
+const authController = require("../controllers/authController");
+router.use(authController.protect, authController.restricTO("superAdmin"));
 
 router.get("/projectstats", statsController.getProjectStats);
 router.get("/enquirestats", statsController.getDailyEnquiries);

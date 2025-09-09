@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express();
+var cookieParser = require("cookie-parser");
 const globalErrorHandler = require("./utils/errorController");
 const projectRouter = require("./routes/projectRoute");
 const cloudImageUplodRoute = require("./routes/cdnImageUplodRoute");
@@ -21,6 +22,8 @@ app.use(
 );
 
 app.use(express.json({ limit: "10mb" })); // Increase limit
+
+app.use(cookieParser());
 
 app.use("/api/v1/real-estate/admin/auth", authRoute);
 app.use("/api/v1/real-estate/admin/project", projectRouter);

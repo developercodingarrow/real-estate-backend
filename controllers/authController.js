@@ -190,6 +190,53 @@ exports.otpLogin = catchAsync(async (req, res, next) => {
   }
 });
 
+exports.protect = catchAsync(async (req, res, next) => {
+  // 1) Getting token and
+  let token;
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith("Bearer")
+  ) {
+    token = req.headers.authorization.split(" ")[1];
+  } else if (req.cookies.jwt) {
+    token = req.cookies.jwt;
+  }
+
+  if (!token) {
+    return next(new AppError("Your are not logIn Please login to acces"), 401);
+  }
+
+  // 2) Verifing Tooken
+  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+
+  // 3) check if user exist means after token is user or delete user
+  // id comes from jwt payload
+  const freshUser = await User.findById(decoded.id);
+
+  if (!freshUser) {
+    return next(
+      new AppError("The User token does not blonging to this user", 401)
+    );
+  }
+
+  req.user = freshUser;
+  next();
+});
+
+// all to acces user Role
+exports.restricTO = (...roles) => {
+  return (req, res, next) => {
+    // roles in Array
+    if (!roles.includes(req.user.role)) {
+      return next(
+        new AppError("You do not have permission to acces this", 403)
+      );
+    }
+
+    next();
+  };
+};
+
 exports.logOut = catchAsync(async (req, res, next) => {
   res.clearCookie("jwt", {
     httpOnly: false,

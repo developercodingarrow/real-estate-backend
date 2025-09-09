@@ -1,6 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const imageUploadController = require("../controllers/imageUploadController");
+
+const authController = require("../controllers/authController");
+
+router.use(authController.protect, authController.restricTO("superAdmin"));
+
 const {
   handleMulterErrors,
   projectImageMiddleware,
