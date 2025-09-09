@@ -14,11 +14,11 @@ const sendEmail = async (options) => {
     });
   } else if (process.env.NODE_ENV === "production") {
     transporter = nodemailer.createTransport({
-      host: process.env.zeptomail_ServerName,
-      port: process.env.zeptomail_PortNumber,
+      host: process.env.Mailtrap_EMAIL_HOST,
+      port: process.env.Mailtrap_EMAIL_PORT,
       auth: {
-        user: process.env.zeptomail_Username, // Production email user
-        pass: process.env.zeptomail_Password,
+        user: process.env.Mailtrap_EMAIL_USER, // Development email user
+        pass: process.env.Miltrap_EMAIL_PASSWORD, // Development email password
       },
     });
   }

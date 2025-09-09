@@ -17,7 +17,7 @@ const residentialProjectSchema = new mongoose.Schema(
 
     content: {
       type: String,
-      minlength: [10, "Content must be at least 100 characters long"],
+      minlength: [100, "Content must be at least 100 characters long"],
     },
 
     keywords: {
@@ -32,6 +32,7 @@ const residentialProjectSchema = new mongoose.Schema(
     propertyCategory: {
       type: String,
       enum: ["residential", "commercial"],
+      required: [true, "Property category is required"],
     },
     propertyType: {
       type: String,
@@ -41,16 +42,20 @@ const residentialProjectSchema = new mongoose.Schema(
         "plot",
         "shop",
         "mall",
+        "farmhouse",
+        "independent",
+        "villa",
         "commerercial-project",
         "residential-project",
         "co-working-office-space",
         "ready-to-move-office-space",
       ],
-      default: "apartment",
+      required: [true, "Property propertyType is required"],
     },
     lookingFor: {
       type: String,
       enum: ["sell", "rent"],
+      required: [true, "Property lookingFor is required"],
     },
     projectStatus: {
       type: String,
@@ -104,7 +109,6 @@ const residentialProjectSchema = new mongoose.Schema(
     unitType: {
       type: String,
       enum: ["1RK", "1BHK", "2BHK", "3BHK", "4BHK", "4+BHK"],
-      default: "2BHK",
     },
     reraNo: {
       type: String,
@@ -219,6 +223,11 @@ const residentialProjectSchema = new mongoose.Schema(
     },
     rent: {
       type: Number,
+    },
+    publishStatus: {
+      type: String,
+      enum: ["publish", "draft"],
+      default: "draft",
     },
   },
   { timestamps: true }

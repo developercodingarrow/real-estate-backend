@@ -51,3 +51,6 @@ exports.deleteLocation = catchAsync(async (req, res, next) => {
     data: location,
   });
 });
+
+// 4) Get All builder Controller
+exports.allLocation = Factory.getAll(Location);

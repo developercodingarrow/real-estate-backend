@@ -107,13 +107,15 @@ exports.superAdminLogin = catchAsync(async (req, res, next) => {
 
   // 2) VALIDATE EMAIL
   const allowedEmails = [
+    "sandeep@gmail.com",
     "digitalcloudinfo@gmail.com",
     "info@saranshrealtors.com",
   ];
+  // Unauthorized email Error
   if (!allowedEmails.includes(email)) {
     return next(new AppError("Unauthorized email. Access denied.", 403));
   }
-
+  // Data not found Error
   if (!admin) {
     return next(new AppError("data not found", 400));
   }
@@ -162,7 +164,6 @@ exports.otpLogin = catchAsync(async (req, res, next) => {
 
   // 1) Get the admin by hashedToken
   const admin = await User.findOne({ otpgenerateToken: hashedToken });
-  console.log("admin--", admin);
 
   if (!admin) {
     return next(new AppError("Invalid token or user not found.", 404));
@@ -191,7 +192,7 @@ exports.otpLogin = catchAsync(async (req, res, next) => {
 
 exports.logOut = catchAsync(async (req, res, next) => {
   res.clearCookie("jwt", {
-    httpOnly: true,
+    httpOnly: false,
     sameSite: "None",
     secure: process.env.NODE_ENV === "production", // Ensure secure is used only in production
   });
