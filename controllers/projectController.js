@@ -4,6 +4,7 @@ const catchAsync = require("../utils/catchAsync");
 const Project = require("../models/residentialprojectModel");
 const AppError = require("../utils/appError");
 const Factory = require("../utils/handlerFactory");
+const slugify = require("slugify");
 
 // 1) Create New Project Controller
 exports.createProject = catchAsync(async (req, res, next) => {
@@ -50,43 +51,39 @@ exports.updateProjectFileds = Factory.updateOneByFillterdFiled(Project, [
   "noOfUnits",
   "officeCabines",
   "officeMiniSeats",
+  "unitType",
 ]);
 
 // 4) Delete Project Image Controller
 exports.deleteProjectImage = Factory.deleteSingleImage(Project, "projectImage");
 
-// 5) Add Amenities to Project Controller
+// 5) Add Amenities to Project Controller addAmenitiesProject
 exports.addAmenitiesProject = catchAsync(async (req, res, next) => {
-  const { _id } = req.params; // slug from URL
-  const { amenities } = req.body; // array of amenity IDs from frontend
+  const { _id } = req.params;
+  const { amenities } = req.body; // must be full array of IDs
 
-  if (!amenities || !Array.isArray(amenities)) {
+  if (!Array.isArray(amenities)) {
     return res.status(400).json({
       status: "fail",
-      message: "Please provide an array of amenity IDs",
+      message: "Please send an array of amenity IDs (full selection).",
     });
   }
 
-  // find project
-  const project = await Project.findOne({ _id });
+  const project = await Project.findByIdAndUpdate(
+    _id,
+    { amenities: amenities.map(String) }, // normalize to strings
+    { new: true, runValidators: true }
+  );
+
   if (!project) {
-    return res.status(404).json({
-      status: "fail",
-      message: "Project not found",
-    });
+    return res
+      .status(404)
+      .json({ status: "fail", message: "Project not found" });
   }
-
-  // push new amenities (avoid duplicates)
-  project.amenities = [...new Set([...project.amenities, ...amenities])];
-
-  await project.save();
 
   res.status(200).json({
     status: "success",
-    message: "Amenities added successfully",
-    data: {
-      project,
-    },
+    message: "Amenities updated",
   });
 });
 
@@ -131,3 +128,87 @@ exports.allProject = Factory.getAllByFiled(
 );
 
 exports.allprojects = Factory.getAll(Project);
+
+// controllers/projectController.js
+exports.toggleFeatured = catchAsync(async (req, res, next) => {
+  const { id } = req.body;
+
+  if (!id) {
+    return next(new AppError("Project ID is required", 400));
+  }
+
+  const project = await Project.findById(id);
+
+  if (!project) {
+    return next(new AppError("Project not found", 404));
+  }
+
+  const updated = await Project.findByIdAndUpdate(
+    id,
+    { $set: { isFeatured: !project.isFeatured } }, // toggle manually
+    { new: true, runValidators: false }
+  );
+
+  res.status(200).json({
+    status: "success",
+    message: `Project isFeatured set to ${updated.isFeatured}`,
+  });
+});
+
+// controllers/projectController.js
+exports.togglePublishStatus = catchAsync(async (req, res, next) => {
+  const { id } = req.body;
+
+  if (!id) {
+    return next(new AppError("Project ID is required", 400));
+  }
+
+  const project = await Project.findById(id);
+
+  if (!project) {
+    return next(new AppError("Project not found", 404));
+  }
+
+  const updated = await Project.findByIdAndUpdate(
+    id,
+    { $set: { publishStatus: !project.publishStatus } }, // toggle
+    { new: true, runValidators: false }
+  );
+
+  res.status(200).json({
+    status: "success",
+    message: `Project publishStatus set to ${updated.publishStatus}`,
+  });
+});
+
+exports.updateSlug = catchAsync(async (req, res, next) => {
+  const { _id } = req.params; // project ID from URL
+  const { slug } = req.body; // text for slug from frontend
+
+  if (!slug || slug.trim() === "") {
+    return res.status(400).json({
+      status: "fail",
+      message: "Please provide a valid slug text",
+    });
+  }
+
+  const project = await Project.findById(_id);
+  if (!project) {
+    return res.status(404).json({
+      status: "fail",
+      message: "Project not found",
+    });
+  }
+
+  // Convert provided text into slug
+  const newSlug = slugify(slug, { lower: true, strict: true });
+
+  project.slug = newSlug;
+  await project.save({ validateBeforeSave: false });
+
+  res.status(200).json({
+    status: "success",
+    message: "Slug updated successfully",
+    data: { slug: project.slug },
+  });
+});

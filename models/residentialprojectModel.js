@@ -54,7 +54,7 @@ const residentialProjectSchema = new mongoose.Schema(
     },
     lookingFor: {
       type: String,
-      enum: ["sell", "rent"],
+      enum: ["sell", "rent", "buy"],
       required: [true, "Property lookingFor is required"],
     },
     projectStatus: {
@@ -108,10 +108,10 @@ const residentialProjectSchema = new mongoose.Schema(
     },
     unitType: {
       type: String,
-      enum: ["1RK", "1BHK", "2BHK", "3BHK", "4BHK", "4+BHK"],
     },
     reraNo: {
       type: String,
+      default: "N/A",
     },
     basicPrice: {
       type: Number,
@@ -225,9 +225,13 @@ const residentialProjectSchema = new mongoose.Schema(
       type: Number,
     },
     publishStatus: {
-      type: String,
-      enum: ["publish", "draft"],
-      default: "draft",
+      type: Boolean,
+      default: false,
+    },
+
+    isFeatured: {
+      type: Boolean,
+      default: false,
     },
   },
   { timestamps: true }

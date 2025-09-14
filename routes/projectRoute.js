@@ -17,5 +17,8 @@ router.delete("/deleteProjectImage/:id", projectController.deleteProjectImage);
 router.post("/addAmenities/:_id", projectController.addAmenitiesProject);
 router.post("/updateProjectSeo/:slug", projectController.updateProjectSeo);
 router.post("/addKeywords/:_id", projectController.addKeywords);
+router.patch("/isfeatured", projectController.toggleFeatured);
+router.patch("/isPublished", projectController.togglePublishStatus);
+router.post("/updateslug/:_id", projectController.updateSlug);
 
 module.exports = router;

@@ -44,6 +44,6 @@ amenitySchema.pre("save", function (next) {
   next();
 });
 
-const Amenity = mongoose.model("amanities", amenitySchema);
+const Amenity = mongoose.model("Amenity", amenitySchema);
 
 module.exports = Amenity;
