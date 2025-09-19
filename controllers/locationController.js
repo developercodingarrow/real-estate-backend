@@ -14,17 +14,6 @@ exports.createNewLocation = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.getCityLocation = catchAsync(async (req, res, next) => {
-  const { _id } = req.params; // this is city id
-
-  const locations = await Location.find({ city: _id }); // ✅ filter by city field
-  res.status(200).json({
-    status: "success",
-    results: locations.length,
-    data: locations,
-  });
-});
-
 // 3) DELETE Builder Controller
 exports.deleteLocation = catchAsync(async (req, res, next) => {
   const { _id } = req.body;

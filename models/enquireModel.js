@@ -20,7 +20,6 @@ const enquireSchema = new mongoose.Schema(
     pageUrl: {
       type: String,
       trim: true,
-      required: [true, "Page URL is required"], // track where enquiry came from
     },
     // Meta Info
     ipAddress: {

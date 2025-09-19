@@ -5,22 +5,10 @@ const amenitySchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
-    unique: true, // prevent duplicate names
     trim: true,
   },
   propertyType: {
     type: String,
-    enum: [
-      "apartment",
-      "house",
-      "plot",
-      "shop",
-      "mall",
-      "commerercial-project",
-      "residential-project",
-      "co-working-office-space",
-      "ready-to-move-office-space",
-    ],
     required: true,
     trim: true,
   },
@@ -36,10 +24,13 @@ const amenitySchema = new mongoose.Schema({
   },
 });
 
-// Pre-save middleware to generate slug from name
+// Pre-save middleware to generate slug from name + propertyType
 amenitySchema.pre("save", function (next) {
-  if (this.isModified("name")) {
-    this.slug = slugify(this.name, { lower: true, strict: true });
+  if (this.isModified("name") || this.isModified("propertyType")) {
+    this.slug = slugify(`${this.name}-${this.propertyType}`, {
+      lower: true,
+      strict: true,
+    });
   }
   next();
 });

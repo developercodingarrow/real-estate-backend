@@ -13,11 +13,6 @@ const locationSchema = new mongoose.Schema({
     lowercase: true,
     trim: true,
   },
-  city: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "cities", // reference the City model
-    required: true,
-  },
   createdAt: {
     type: Date,
     default: Date.now,

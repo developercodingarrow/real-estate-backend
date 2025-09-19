@@ -12,7 +12,6 @@ const blogRoute = require("./routes/blogRoute");
 const enquireRoute = require("./routes/enquireRoute");
 const authRoute = require("./routes/authRoute");
 const statsRoute = require("./routes/statsRoute");
-const publicRoute = require("./routes/publicRoute");
 const cors = require("cors");
 
 app.use(
@@ -36,7 +35,6 @@ app.use("/api/v1/real-estate/admin/location", locationRoute);
 app.use("/api/v1/real-estate/admin/blog", blogRoute);
 app.use("/api/v1/real-estate/admin/enquire", enquireRoute);
 app.use("/api/v1/real-estate/admin/stats", statsRoute);
-app.use("/api/v1/real-estate/admin/public", publicRoute);
 
 app.use(globalErrorHandler);
 

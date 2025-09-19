@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const slugify = require("slugify");
 
-const residentialProjectSchema = new mongoose.Schema(
+const propertiesSchema = new mongoose.Schema(
   {
     title: {
       type: String,
@@ -60,12 +60,10 @@ const residentialProjectSchema = new mongoose.Schema(
     projectStatus: {
       type: String,
       enum: ["ready-to-move", "under-construction", "upcoming"],
-      default: "ready-to-move",
     },
     projectType: {
       type: String,
       enum: ["affordable", "luxury"],
-      default: "affordable",
     },
     builder: {
       type: String,
@@ -75,12 +73,10 @@ const residentialProjectSchema = new mongoose.Schema(
     city: {
       type: String,
       lowercase: true,
-      minlength: [3, "City Name must be at least 3 characters long"],
     },
     location: {
       type: String,
       lowercase: true,
-      minlength: [3, "Location Name must be at least 3 characters long"],
     },
     address: {
       type: String,
@@ -88,23 +84,21 @@ const residentialProjectSchema = new mongoose.Schema(
     },
     builtUpArea: {
       type: Number,
-      min: [100, "Built-up Area must be at least 100 sqft"],
+      min: [10, "Built-up Area must be at least 100 sqft"],
     },
     carpetArea: {
       type: Number,
-      min: [100, "Carpet Area must be at least 100 sqft"],
+      min: [10, "Carpet Area must be at least 100 sqft"],
     },
     superBuiltUpArea: {
       type: Number,
-      min: [100, "Super Built-up Area must be at least 100 sqft"],
+      min: [10, "Super Built-up Area must be at least 100 sqft"],
     },
     noOfFloors: {
       type: Number,
-      min: [1, "Must have at least 1 floor"],
     },
     noOfUnits: {
       type: Number,
-      min: [1, "Must have at least 1 unit"],
     },
     unitType: {
       type: String,
@@ -186,10 +180,6 @@ const residentialProjectSchema = new mongoose.Schema(
     noOfBalconies: {
       type: Number,
     },
-    plotArea: {
-      type: Number,
-      min: [100, "Plot Area must be at least 100 sqft"],
-    },
 
     plotLength: {
       type: Number,
@@ -203,13 +193,6 @@ const residentialProjectSchema = new mongoose.Schema(
       type: Number,
     },
 
-    plotPossession: {
-      type: String,
-      lowercase: true,
-    },
-    totalFloors: {
-      type: Number,
-    },
     propertyOnFloor: {
       type: String,
       lowercase: true,
@@ -233,12 +216,18 @@ const residentialProjectSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    ProjectArea: {
+      type: String,
+    },
+    StartsPrice: {
+      type: String,
+    },
   },
   { timestamps: true }
 );
 
 // Slug middleware
-residentialProjectSchema.pre("save", function (next) {
+propertiesSchema.pre("save", function (next) {
   // Only run if slug is empty or title is modified
   if (!this.slug || this.isModified("title")) {
     let baseSlug = "";
@@ -263,7 +252,7 @@ residentialProjectSchema.pre("save", function (next) {
 });
 
 // lowercase specific fields before saving
-residentialProjectSchema.pre("save", function (next) {
+propertiesSchema.pre("save", function (next) {
   const fieldsToLower = ["title", "city", "location", "builder"];
 
   fieldsToLower.forEach((field) => {
@@ -275,9 +264,6 @@ residentialProjectSchema.pre("save", function (next) {
   next();
 });
 
-const ResidentialProject = mongoose.model(
-  "ResidentialProject",
-  residentialProjectSchema
-);
+const Properties = mongoose.model("properties", propertiesSchema);
 
-module.exports = ResidentialProject;
+module.exports = Properties;

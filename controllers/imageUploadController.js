@@ -3,7 +3,7 @@ const dotenv = require("dotenv");
 dotenv.config({ path: path.resolve(__dirname, "../config.env") });
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
-const Project = require("../models/residentialprojectModel");
+const Project = require("../models/propertiesModel");
 const Blog = require("../models/blogModel");
 const {
   S3Client,

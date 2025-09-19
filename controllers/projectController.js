@@ -1,7 +1,7 @@
 const dotenv = require("dotenv");
 dotenv.config({ path: "../config.env" });
 const catchAsync = require("../utils/catchAsync");
-const Project = require("../models/residentialprojectModel");
+const Project = require("../models/propertiesModel");
 const AppError = require("../utils/appError");
 const Factory = require("../utils/handlerFactory");
 const slugify = require("slugify");
@@ -52,6 +52,8 @@ exports.updateProjectFileds = Factory.updateOneByFillterdFiled(Project, [
   "officeCabines",
   "officeMiniSeats",
   "unitType",
+  "ProjectArea",
+  "StartsPrice",
 ]);
 
 // 4) Delete Project Image Controller
