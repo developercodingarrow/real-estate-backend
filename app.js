@@ -28,6 +28,11 @@ app.use(express.json({ limit: "10mb" })); // Increase limit
 
 app.use(cookieParser());
 
+app.use((req, res, next) => {
+  console.log("Incoming URL:", req.originalUrl);
+  next();
+});
+
 app.use("/api/v1/real-estate/admin/auth", authRoute);
 app.use("/api/v1/real-estate/admin/project", projectRouter);
 app.use("/api/v1/real-estate/admin/cdn-imge-upload", cloudImageUplodRoute);
