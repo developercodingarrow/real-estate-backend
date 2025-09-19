@@ -18,7 +18,7 @@ app.use(
   cors({
     origin:
       process.env.NODE_ENV === "production"
-        ? "https://dashboardrealestate.litversehub.com/"
+        ? "https://dashboardrealestate.litversehub.com"
         : "http://localhost:3302",
     credentials: true,
   })
