@@ -16,8 +16,11 @@ const cors = require("cors");
 
 app.use(
   cors({
-    origin: "http://localhost:3000", // Next.js frontend
-    credentials: true, // allow cookies
+    origin:
+      process.env.NODE_ENV === "production"
+        ? "https://dashboardrealestate.litversehub.com/"
+        : "http://localhost:3302",
+    credentials: true,
   })
 );
 
