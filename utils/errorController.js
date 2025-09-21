@@ -7,6 +7,15 @@ const handelValidationErrorDB = (err) => {
   return new AppError(message, 400);
 };
 
+// Handle duplicate key errors from MongoDB
+const handleDuplicateFieldsDB = (err) => {
+  const value = err.keyValue
+    ? Object.values(err.keyValue)[0]
+    : "duplicate value";
+  const message = `Duplicate field value: "${value}". Please use another one!`;
+  return new AppError(message, 400);
+};
+
 const sendErrorDev = (err, res) => {
   res.status(err.statusCode).json({
     status: err.status,
@@ -41,6 +50,7 @@ module.exports = (err, req, res, next) => {
     if (err.name === "ValidationError") {
       error = handelValidationErrorDB(err);
     }
+    if (err.code === 11000) error = handleDuplicateFieldsDB(err);
     sendErrorProduction(error, res);
   }
 };
