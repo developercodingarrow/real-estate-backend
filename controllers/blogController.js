@@ -167,7 +167,7 @@ exports.togglePublishStatus = catchAsync(async (req, res, next) => {
   const { id } = req.body;
 
   if (!id) {
-    return next(new AppError("Project ID is required", 400));
+    return next(new AppError("Blog  ID is required", 400));
   }
 
   const blog = await Blog.findById(id);
@@ -176,7 +176,7 @@ exports.togglePublishStatus = catchAsync(async (req, res, next) => {
     return next(new AppError("Blog not found", 404));
   }
 
-  const updated = await blog.findByIdAndUpdate(
+  const updated = await Blog.findByIdAndUpdate(
     id,
     { $set: { publishStatus: !blog.publishStatus } }, // toggle
     { new: true, runValidators: false }
