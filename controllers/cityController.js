@@ -21,7 +21,8 @@ exports.allCity = Factory.getAll(City);
 
 // 3) DELETE Builder Controller
 exports.deleteCity = catchAsync(async (req, res, next) => {
-  // const { _id } = req.body;
+  req.body = {};
+  const { _id } = req.body;
 
   if (!_id) {
     return res.status(400).json({
