@@ -162,4 +162,30 @@ exports.updateSlug = catchAsync(async (req, res, next) => {
   });
 });
 
+// controllers/projectController.js
+exports.togglePublishStatus = catchAsync(async (req, res, next) => {
+  const { id } = req.body;
+
+  if (!id) {
+    return next(new AppError("Project ID is required", 400));
+  }
+
+  const blog = await Blog.findById(id);
+
+  if (!blog) {
+    return next(new AppError("Blog not found", 404));
+  }
+
+  const updated = await blog.findByIdAndUpdate(
+    id,
+    { $set: { publishStatus: !blog.publishStatus } }, // toggle
+    { new: true, runValidators: false }
+  );
+
+  res.status(200).json({
+    status: "success",
+    message: `Blog publishStatus set to ${updated.publishStatus}`,
+  });
+});
+
 exports.allBlogs = Factory.getAll(Blog);

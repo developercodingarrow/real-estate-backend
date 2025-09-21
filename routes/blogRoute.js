@@ -12,5 +12,6 @@ router.get("/getSingleBlog/:id", blogController.getBlogById);
 router.post("/addKeywords/:_id", blogController.addKeywords);
 router.post("/updateSlug/:id", blogController.updateSlug);
 router.get("/allBlogs", blogController.allBlogs);
+router.patch("/isPublished", blogController.togglePublishStatus);
 
 module.exports = router;
