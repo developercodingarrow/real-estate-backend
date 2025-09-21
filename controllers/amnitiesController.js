@@ -12,6 +12,7 @@ exports.createAmenity = catchAsync(async (req, res, next) => {
   res.status(201).json({
     status: "success",
     data: newProject,
+    message: "Amnities is created successfully",
   });
 });
 

@@ -12,6 +12,7 @@ exports.createNewCity = catchAsync(async (req, res, next) => {
   res.status(201).json({
     status: "success",
     data: newCity,
+    message: "City is created successfully",
   });
 });
 
@@ -20,7 +21,7 @@ exports.allCity = Factory.getAll(City);
 
 // 3) DELETE Builder Controller
 exports.deleteCity = catchAsync(async (req, res, next) => {
-  const { _id } = req.body;
+  // const { _id } = req.body;
 
   if (!_id) {
     return res.status(400).json({

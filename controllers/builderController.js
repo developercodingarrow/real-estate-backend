@@ -12,6 +12,7 @@ exports.createNewBuilder = catchAsync(async (req, res, next) => {
   res.status(201).json({
     status: "success",
     data: newBuilder,
+    message: "Builder is created successfully",
   });
 });
 

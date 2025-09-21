@@ -11,6 +11,7 @@ exports.createNewLocation = catchAsync(async (req, res, next) => {
   res.status(201).json({
     status: "success",
     data: newLocation,
+    message: "location is created successfully",
   });
 });
 
