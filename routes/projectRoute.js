@@ -4,7 +4,10 @@ const projectController = require("../controllers/projectController");
 
 const authController = require("../controllers/authController");
 
-router.use(authController.protect, authController.restricTO("superAdmin"));
+router.use(
+  authController.protect,
+  authController.restricTO("superAdmin", "admin")
+);
 
 router.post("/createProject", projectController.createProject);
 router.get("/allProject", projectController.allprojects);

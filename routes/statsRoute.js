@@ -3,7 +3,11 @@ const router = express.Router();
 const statsController = require("../controllers/statsController");
 
 const authController = require("../controllers/authController");
-router.use(authController.protect, authController.restricTO("superAdmin"));
+
+router.use(
+  authController.protect,
+  authController.restricTO("superAdmin", "admin")
+);
 
 router.get("/projectstats", statsController.getProjectStats);
 router.get("/enquirestats", statsController.getDailyEnquiries);

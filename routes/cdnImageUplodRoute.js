@@ -4,7 +4,10 @@ const imageUploadController = require("../controllers/imageUploadController");
 
 const authController = require("../controllers/authController");
 
-router.use(authController.protect, authController.restricTO("superAdmin"));
+router.use(
+  authController.protect,
+  authController.restricTO("superAdmin", "admin")
+);
 
 const {
   handleMulterErrors,

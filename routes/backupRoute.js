@@ -4,6 +4,10 @@ const backupController = require("../controllers/backupController");
 const upload = require("../utils/uploadMiddleware");
 const authController = require("../controllers/authController");
 
+router.use(
+  authController.protect,
+  authController.restricTO("superAdmin", "admin")
+);
 router.get("/downloadenquireBackup", backupController.downloadEnquiresBackup);
 router.post(
   "/restore-enquires",

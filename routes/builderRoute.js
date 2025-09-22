@@ -4,7 +4,10 @@ const builderController = require("../controllers/builderController");
 
 const authController = require("../controllers/authController");
 
-router.use(authController.protect, authController.restricTO("superAdmin"));
+router.use(
+  authController.protect,
+  authController.restricTO("superAdmin", "admin")
+);
 
 router.post("/createBuilder", builderController.createNewBuilder);
 router.get("/allBuilder", builderController.allBuilder);

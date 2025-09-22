@@ -4,7 +4,10 @@ const blogController = require("../controllers/blogController");
 
 const authController = require("../controllers/authController");
 
-router.use(authController.protect, authController.restricTO("superAdmin"));
+router.use(
+  authController.protect,
+  authController.restricTO("superAdmin", "admin")
+);
 
 router.post("/startCreateBlog", blogController.startcreateNewBlog);
 router.post("/updateBlogContnet/:id", blogController.updateBlogContnet);
