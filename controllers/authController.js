@@ -89,7 +89,7 @@ exports.superAdminRegisteraion = catchAsync(async (req, res, next) => {
   const newAdmin = await User.create({
     name,
     email,
-    role: "superAdmin",
+    role: "admin",
   });
 
   res.status(200).json({
@@ -107,7 +107,7 @@ exports.superAdminLogin = catchAsync(async (req, res, next) => {
 
   // 2) VALIDATE EMAIL
   const allowedEmails = [
-    "sandeep@gmail.com",
+    "admin@gmail.com",
     "digitalcloudinfo@gmail.com",
     "info@saranshrealtors.com",
   ];
