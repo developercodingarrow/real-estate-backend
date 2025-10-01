@@ -6,7 +6,7 @@ const authController = require("../controllers/authController");
 
 router.use(
   authController.protect,
-  authController.restricTO("superAdmin", "admin")
+  authController.restricTO("superAdmin", "admin", "editor")
 );
 
 router.post("/startCreateBlog", blogController.startcreateNewBlog);

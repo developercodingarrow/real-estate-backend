@@ -18,8 +18,8 @@ const userSchema = new mongoose.Schema(
 
     role: {
       type: String,
-      enum: ["superAdmin", "admin"],
-      default: "superAdmin",
+      enum: ["superAdmin", "admin", "editor"],
+      default: "editor",
     },
     otp: String,
     otpTimestamp: Date,

@@ -14,7 +14,11 @@ const authRoute = require("./routes/authRoute");
 const statsRoute = require("./routes/statsRoute");
 const excelDataRoute = require("./routes/excelDataRoute");
 const backupRoute = require("./routes/backupRoute");
+const restoreRoute = require("./routes/restoreRoute");
 const cors = require("cors");
+
+// models test
+const Property = require("./models/propertiesModel");
 
 app.use(
   cors({
@@ -30,10 +34,18 @@ app.use(express.json({ limit: "10mb" })); // Increase limit
 
 app.use(cookieParser());
 
-app.use((req, res, next) => {
-  console.log("Incoming URL:", req.originalUrl);
-  next();
-});
+// delete all cities on server start (for testing only)
+
+// (async () => {
+//   try {
+//     await Property.deleteMany();
+//     console.log(
+//       "✅ All admins and editors deleted successfully on server start"
+//     );
+//   } catch (err) {
+//     console.error("❌ Failed to delete users:", err);
+//   }
+// })();
 
 app.use("/api/v1/real-estate/admin/auth", authRoute);
 app.use("/api/v1/real-estate/admin/project", projectRouter);
@@ -47,6 +59,7 @@ app.use("/api/v1/real-estate/admin/enquire", enquireRoute);
 app.use("/api/v1/real-estate/admin/stats", statsRoute);
 app.use("/api/v1/real-estate/admin/excel", excelDataRoute);
 app.use("/api/v1/real-estate/admin/backup", backupRoute);
+app.use("/api/v1/real-estate/admin/restore", restoreRoute);
 
 app.use(globalErrorHandler);
 

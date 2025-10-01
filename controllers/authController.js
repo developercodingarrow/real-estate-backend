@@ -98,6 +98,46 @@ exports.superAdminRegisteraion = catchAsync(async (req, res, next) => {
   });
 });
 
+exports.createTeamMember = catchAsync(async (req, res, next) => {
+  //1) GET DATA FROM BODY
+  const name = xss(req.body.name);
+  const email = xss(req.body.email);
+  const role = xss(req.body.role);
+  //2)CHECK THE USER FIELD IS EMPTY
+  if (!name || !email || !role) {
+    return next(new AppError("Please Provide Required filed", 400));
+  }
+  //3) CHECK USER ALREADY REGISTER
+  const checkUser = await User.findOne({ email });
+
+  // check input filed isEmpity
+  if (checkUser) {
+    return next(new AppError("Admin Already resgister", 400));
+  }
+
+  const newAdmin = await User.create({
+    name,
+    email,
+    role,
+  });
+
+  res.status(200).json({
+    status: "success",
+    message: "Team Member Created Successfully",
+    data: newAdmin,
+  });
+});
+
+// GET all TEAM MEMBER NOT INCLUDE SUPERADMIN
+exports.getAllTeamMember = catchAsync(async (req, res, next) => {
+  const teamMembers = await User.find({ role: { $ne: "superAdmin" } });
+  res.status(200).json({
+    status: "success",
+    total: teamMembers.length,
+    data: teamMembers,
+  });
+});
+
 // (2 Admin Login Controller
 exports.superAdminLogin = catchAsync(async (req, res, next) => {
   //1) GET DATA FROM BODY
@@ -135,6 +175,109 @@ exports.superAdminLogin = catchAsync(async (req, res, next) => {
       email: email,
       subject: "Saransh Realtors Super Admin Login",
       message: `<h1>This is your one-time OTP: ${otp} for Super Admin. Please use the OTP to Login your account.</h1>
+                <br>Click on this link to verify: <a href="${otpverificationURL}">Verify OTP</a>`,
+    });
+
+    res.status(200).json({
+      status: "success",
+      apiFor: "login",
+      message: "OTP sent successfully, please check your email.",
+      UrlToken,
+      // Don't send OTP or newUser details in the response
+    });
+  } catch (error) {
+    // Handle error in case the email fails to send
+    return next(
+      new AppError(
+        "There was an error sending the email. Try again later.",
+        500
+      )
+    );
+  }
+});
+
+// (3 Admin Login Controller
+exports.adminLogin = catchAsync(async (req, res, next) => {
+  //1) GET DATA FROM BODY
+  const email = xss(req.body.email);
+  //3) CHECK USER ALREADY REGISTER
+  const admin = await User.findOne({ email });
+
+  // Data not found Error
+  if (!admin) {
+    return next(new AppError("data not found", 400));
+  }
+
+  if (admin.role !== "admin") {
+    return next(new AppError("You are not authorized as admin", 403));
+  }
+
+  const { otp, encryptedOtp } = await HashOTP();
+  const { UrlToken, hashedToken } = OtpURL();
+
+  admin.otp = encryptedOtp;
+  admin.otpTimestamp = new Date();
+  admin.otpgenerateToken = hashedToken;
+  await admin.save();
+
+  const otpverificationURL = `http://localhost:3000/auth/otpverification/${UrlToken}`;
+
+  try {
+    await sendEmail({
+      email: email,
+      subject: "Saransh Realtors Admin Login",
+      message: `<h1>This is your one-time OTP: ${otp} for Admin. Please use the OTP to Login your account.</h1>
+                <br>Click on this link to verify: <a href="${otpverificationURL}">Verify OTP</a>`,
+    });
+
+    res.status(200).json({
+      status: "success",
+      apiFor: "login",
+      message: "OTP sent successfully, please check your email.",
+      UrlToken,
+      // Don't send OTP or newUser details in the response
+    });
+  } catch (error) {
+    // Handle error in case the email fails to send
+    return next(
+      new AppError(
+        "There was an error sending the email. Try again later.",
+        500
+      )
+    );
+  }
+});
+
+exports.editorLogin = catchAsync(async (req, res, next) => {
+  //1) GET DATA FROM BODY
+  const email = xss(req.body.email);
+  //3) CHECK USER ALREADY REGISTER
+  const admin = await User.findOne({ email });
+
+  // Data not found Error
+  if (!admin) {
+    return next(new AppError("data not found", 400));
+  }
+
+  if (admin.role !== "editor") {
+    return next(new AppError("You are not authorized as editor", 403));
+  }
+
+  const { otp, encryptedOtp } = await HashOTP();
+  const { UrlToken, hashedToken } = OtpURL();
+
+  admin.otp = encryptedOtp;
+  admin.otpTimestamp = new Date();
+  admin.otpgenerateToken = hashedToken;
+  await admin.save();
+
+  const otpverificationURL = `http://localhost:3000/auth/otpverification/${UrlToken}`;
+
+  try {
+    await sendEmail({
+      email: email,
+      subject: "Saransh Realtors Editor Login",
+      message: `<h1>This is your one-time OTP: ${otp} for editor. Please use the OTP to Login your account.</h1>
                 <br>Click on this link to verify: <a href="${otpverificationURL}">Verify OTP</a>`,
     });
 
