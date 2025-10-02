@@ -24,8 +24,6 @@ const s3_ImageUploder = new S3Client({
 
 exports.updateProjectImage = catchAsync(async (req, res, next) => {
   try {
-    console.log("File received:", req.file.originalname.split(".")[0]);
-
     // 2. Upload to R2
     const fileExtension = req.file.originalname.split(".").pop();
     const fileName = `saranshrealtors-project-image/${Date.now()}.${fileExtension}`;
@@ -242,8 +240,6 @@ exports.deleteProject = catchAsync(async (req, res, next) => {
 
 exports.updateBlogImage = catchAsync(async (req, res, next) => {
   try {
-    console.log("File received:", req.file.originalname.split(".")[0]);
-
     // 2. Upload to R2
     const fileExtension = req.file.originalname.split(".").pop();
     const fileName = `saranshrealtors-blog-image/${Date.now()}.${fileExtension}`;

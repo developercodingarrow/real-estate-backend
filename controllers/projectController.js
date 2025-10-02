@@ -8,7 +8,6 @@ const slugify = require("slugify");
 
 // 1) Create New Project Controller
 exports.createProject = catchAsync(async (req, res, next) => {
-  console.log(req.body);
   const newProject = await Project.create(req.body);
   res.status(201).json({
     status: "success",
@@ -98,8 +97,6 @@ exports.updateProjectSeo = Factory.updateOneByFillterdFiled(Project, [
 exports.addKeywords = catchAsync(async (req, res, next) => {
   const { _id } = req.params;
   const { keywords } = req.body; // should be array
-
-  console.log(keywords);
 
   if (!Array.isArray(keywords) || keywords.length === 0) {
     return next(new AppError("Keywords must be a non-empty array", 400));

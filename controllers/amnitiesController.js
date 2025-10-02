@@ -7,7 +7,6 @@ const Factory = require("../utils/handlerFactory");
 
 // 1) Create New Project Controller
 exports.createAmenity = catchAsync(async (req, res, next) => {
-  console.log(req.body);
   const newProject = await Amenity.create(req.body);
   res.status(201).json({
     status: "success",

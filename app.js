@@ -34,19 +34,6 @@ app.use(express.json({ limit: "10mb" })); // Increase limit
 
 app.use(cookieParser());
 
-// delete all cities on server start (for testing only)
-
-// (async () => {
-//   try {
-//     await Property.deleteMany();
-//     console.log(
-//       "✅ All admins and editors deleted successfully on server start"
-//     );
-//   } catch (err) {
-//     console.error("❌ Failed to delete users:", err);
-//   }
-// })();
-
 app.use("/api/v1/real-estate/admin/auth", authRoute);
 app.use("/api/v1/real-estate/admin/project", projectRouter);
 app.use("/api/v1/real-estate/admin/cdn-imge-upload", cloudImageUplodRoute);

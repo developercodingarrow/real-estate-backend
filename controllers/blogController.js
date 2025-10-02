@@ -110,8 +110,6 @@ exports.addKeywords = catchAsync(async (req, res, next) => {
   const { _id } = req.params;
   const { keywords } = req.body; // should be array
 
-  console.log(keywords);
-
   if (!Array.isArray(keywords) || keywords.length === 0) {
     return next(new AppError("Keywords must be a non-empty array", 400));
   }

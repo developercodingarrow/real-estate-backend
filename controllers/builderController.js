@@ -7,7 +7,6 @@ const Factory = require("../utils/handlerFactory");
 
 // 1) Create New builder Controller
 exports.createNewBuilder = catchAsync(async (req, res, next) => {
-  console.log(req.body);
   const newBuilder = await Builder.create(req.body);
   res.status(201).json({
     status: "success",

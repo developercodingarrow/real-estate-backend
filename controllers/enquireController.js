@@ -8,7 +8,7 @@ const Factory = require("../utils/handlerFactory");
 // 1) Create New ENQUIRE Controller
 exports.createEnquiry = catchAsync(async (req, res, next) => {
   const { name, email, mobileNumber, message } = req.body;
-  console.log(req.body);
+
   if (!name || !email || !mobileNumber) {
     return next(new AppError("Mandatory fields are required", 400));
   }
