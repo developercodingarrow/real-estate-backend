@@ -1,7 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const projectController = require("../controllers/projectController");
-
+const {
+  sanitizeBody,
+  sanitizeParams,
+  sanitizeQuery,
+} = require("../utils/sanitizeMiddleware");
 const authController = require("../controllers/authController");
 
 router.use(
@@ -9,19 +13,65 @@ router.use(
   authController.restricTO("superAdmin", "admin")
 );
 
-router.post("/createProject", projectController.createProject);
-router.get("/allProject", projectController.allprojects);
-router.get("/getSingleProject/:slug", projectController.getSingleProject);
+// Project routes with sanitizers
+router.post("/createProject", sanitizeBody, projectController.createProject);
+
+router.get("/allProject", sanitizeQuery, projectController.allprojects);
+
+router.get(
+  "/getSingleProject/:slug",
+  sanitizeParams,
+  projectController.getSingleProject
+);
+
 router.post(
   "/updateProjectFileds/:slug",
+  sanitizeParams,
+  sanitizeBody,
   projectController.updateProjectFileds
 );
-router.delete("/deleteProjectImage/:id", projectController.deleteProjectImage);
-router.post("/addAmenities/:_id", projectController.addAmenitiesProject);
-router.post("/updateProjectSeo/:slug", projectController.updateProjectSeo);
-router.post("/addKeywords/:_id", projectController.addKeywords);
-router.patch("/isfeatured", projectController.toggleFeatured);
-router.patch("/isPublished", projectController.togglePublishStatus);
-router.post("/updateslug/:_id", projectController.updateSlug);
+
+router.delete(
+  "/deleteProjectImage/:id",
+  sanitizeParams,
+  sanitizeBody,
+  projectController.deleteProjectImage
+);
+
+router.post(
+  "/addAmenities/:_id",
+  sanitizeParams,
+  sanitizeBody,
+  projectController.addAmenitiesProject
+);
+
+router.post(
+  "/updateProjectSeo/:slug",
+  sanitizeParams,
+  sanitizeBody,
+  projectController.updateProjectSeo
+);
+
+router.post(
+  "/addKeywords/:_id",
+  sanitizeParams,
+  sanitizeBody,
+  projectController.addKeywords
+);
+
+router.patch("/isfeatured", sanitizeBody, projectController.toggleFeatured);
+
+router.patch(
+  "/isPublished",
+  sanitizeBody,
+  projectController.togglePublishStatus
+);
+
+router.post(
+  "/updateslug/:_id",
+  sanitizeParams,
+  sanitizeBody,
+  projectController.updateSlug
+);
 
 module.exports = router;

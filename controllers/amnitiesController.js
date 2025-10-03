@@ -4,6 +4,7 @@ const catchAsync = require("../utils/catchAsync");
 const Amenity = require("../models/amenityModel");
 const AppError = require("../utils/appError");
 const Factory = require("../utils/handlerFactory");
+const xss = require("xss");
 
 // 1) Create New Project Controller
 exports.createAmenity = catchAsync(async (req, res, next) => {
@@ -11,7 +12,7 @@ exports.createAmenity = catchAsync(async (req, res, next) => {
   res.status(201).json({
     status: "success",
     data: newProject,
-    message: "Amnities is created successfully",
+    message: "Amenity created successfully",
   });
 });
 

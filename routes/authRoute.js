@@ -1,12 +1,18 @@
 const express = require("express");
 const router = express.Router();
 const authController = require("../controllers/authController");
+const { sanitizeBody } = require("../utils/sanitizeMiddleware");
 
-router.post("/superAdminRegistration", authController.superAdminRegisteraion);
-router.post("/superAdminlogin", authController.superAdminLogin);
-router.post("/adminLogin", authController.adminLogin);
-router.post("/editorLogin", authController.editorLogin);
-router.post("/login-otp/:token", authController.otpLogin);
+// Public routes → sanitize incoming body
+router.post(
+  "/superAdminRegistration",
+  sanitizeBody,
+  authController.superAdminRegisteraion
+);
+router.post("/superAdminlogin", sanitizeBody, authController.superAdminLogin);
+router.post("/adminLogin", sanitizeBody, authController.adminLogin);
+router.post("/editorLogin", sanitizeBody, authController.editorLogin);
+router.post("/login-otp/:token", sanitizeBody, authController.otpLogin);
 
 router.post(
   "/logout",

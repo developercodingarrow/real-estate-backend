@@ -1,7 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const cityController = require("../controllers/cityController");
-
+const {
+  sanitizeBody,
+  sanitizeParams,
+  sanitizeQuery,
+} = require("../utils/sanitizeMiddleware");
 const authController = require("../controllers/authController");
 
 router.use(

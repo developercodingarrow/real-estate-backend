@@ -17,8 +17,36 @@ const backupRoute = require("./routes/backupRoute");
 const restoreRoute = require("./routes/restoreRoute");
 const cors = require("cors");
 
-// models test
-const Property = require("./models/propertiesModel");
+// 🔒 Security Middlewares
+const helmet = require("helmet");
+const mongoSanitize = require("express-mongo-sanitize");
+const hpp = require("hpp");
+const rateLimit = require("express-rate-limit");
+const { xss } = require("express-xss-sanitizer");
+const compression = require("compression");
+// ✅ 1. Helmet (set security headers)
+app.use(helmet());
+// ✅ 2. Rate limiting
+const limiter = rateLimit({
+  max: 100, // max requests per windowMs
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  message: "Too many requests from this IP, please try again later!",
+});
+app.use("/api", limiter);
+
+// ✅ 3. Body parser (limit size)
+app.use(express.json({ limit: "10mb" }));
+
+// ✅ 4. Cookie parser
+app.use(cookieParser());
+
+// ✅ 5. Data sanitization against NoSQL injection
+app.use(mongoSanitize());
+
+// ✅ 6. Data sanitization against XSS
+app.use(xss());
+// ✅ 7. Prevent parameter pollution
+app.use(hpp());
 
 app.use(
   cors({
@@ -30,9 +58,8 @@ app.use(
   })
 );
 
-app.use(express.json({ limit: "10mb" })); // Increase limit
-
-app.use(cookieParser());
+// ✅ 9. Compression for better performance
+app.use(compression());
 
 app.use("/api/v1/real-estate/admin/auth", authRoute);
 app.use("/api/v1/real-estate/admin/project", projectRouter);
